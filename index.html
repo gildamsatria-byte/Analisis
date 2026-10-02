@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="id"><head><meta charset="utf-8">
+<html lang="id"><head>
+<script src="login-gate.js" data-app="Analisis Arsitektural"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Analisis Energi Bangunan dari IFC</title>
+<title>Analisis Arsitektural — Octonaut</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f6f7f9;--fg:#1b2430;--card:#fff;--mut:#667085;--bd:#dfe3ea;--acc:#0f766e;--warn:#b45309;--wbg:#fef3c7;--gbg:#d1fae5;--gfg:#065f46}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151c;--fg:#e6e9ee;--card:#18202a;--mut:#98a2b3;--bd:#2a3441;--acc:#2dd4bf;--warn:#fbbf24;--wbg:#3a2e0b;--gbg:#0d3b2e;--gfg:#6ee7b7}}
@@ -26,13 +27,14 @@ table{border-collapse:collapse;width:100%;font-size:.82rem}td,th{border-bottom:1
 .pane{display:none}.pane.on{display:block}
 .pbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}.pbar label{display:inline-flex;gap:6px;align-items:center;font-size:.85rem;color:var(--fg)}.pbar input[type=checkbox]{width:auto}
 #prHead,#prParams,.pimg{display:none}
-@media print{:root:root:root{--bg:#fff;--fg:#000;--card:#fff;--bd:#bbb;--mut:#555;--acc:#0f766e}body{background:#fff;color:#000}main{max-width:none;padding:0}.np{display:none!important}
+@media print{#octo-chip,#octo-gate{display:none!important}:root:root:root{--bg:#fff;--fg:#000;--card:#fff;--bd:#bbb;--mut:#555;--acc:#0f766e}body{background:#fff;color:#000}main{max-width:none;padding:0}.np{display:none!important}
 .printing .pane{display:none!important}.printing .pane.pr-on{display:block!important;break-before:page}.printing .pane.pr-on.pr-first,.printing #prParams.pr-on.pr-first{break-before:auto}
 .printing #prHead{display:block;margin-bottom:10px;border-bottom:2px solid #000;padding-bottom:6px}.printing #prParams.pr-on{display:block;break-before:page}.printing .pimg{display:block;width:100%}
 .printing #v3 canvas,.printing #fv canvas,.printing #sv canvas{display:none!important}.printing .two{grid-template-columns:1fr}.printing #v3,.printing #fv,.printing #sv{height:auto!important;background:none!important}
 .card{break-inside:auto}tr{break-inside:avoid}h2{break-after:avoid}}
 code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:.82rem}details{margin:6px 0}summary{cursor:pointer;font-weight:600}
 </style></head><body><main>
+<div class="np" style="font-size:.85rem;margin-bottom:4px"><a href="https://octonaut.id/" style="color:var(--acc);text-decoration:none">← Octonaut</a></div>
 <h1 class="np">🏢 Analisis Pra-Desain Bangunan dari Model IFC</h1>
 <div class="mut np">Unggah IFC → parameter dibaca otomatis → lengkapi yang kosong → analisis, 3D, dan lintasan matahari.</div>
 
