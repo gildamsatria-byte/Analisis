@@ -20,18 +20,29 @@ button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:9px 1
 #v3{width:100%;height:380px;border-radius:10px;background:#9db4c8;touch-action:none;cursor:grab}canvas{max-width:100%}
 .bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:.82rem}.bar i{display:block;height:12px;background:var(--acc);border-radius:4px}
 table{border-collapse:collapse;width:100%;font-size:.82rem}td,th{border-bottom:1px solid var(--bd);padding:5px 6px;text-align:left}.sc{overflow-x:auto}
+#tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--bd);margin:14px 0 12px}
+#tabs button{background:transparent;color:var(--mut);border:1px solid transparent;border-bottom:0;border-radius:8px 8px 0 0;padding:9px 18px;margin-bottom:-1px}
+#tabs button.act{background:var(--card);color:var(--fg);border-color:var(--bd);font-weight:600}
+.pane{display:none}.pane.on{display:block}
+.pbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}.pbar label{display:inline-flex;gap:6px;align-items:center;font-size:.85rem;color:var(--fg)}.pbar input[type=checkbox]{width:auto}
+#prHead,#prParams,.pimg{display:none}
+@media print{:root:root:root{--bg:#fff;--fg:#000;--card:#fff;--bd:#bbb;--mut:#555;--acc:#0f766e}body{background:#fff;color:#000}main{max-width:none;padding:0}.np{display:none!important}
+.printing .pane{display:none!important}.printing .pane.pr-on{display:block!important;break-before:page}.printing .pane.pr-on.pr-first,.printing #prParams.pr-on.pr-first{break-before:auto}
+.printing #prHead{display:block;margin-bottom:10px;border-bottom:2px solid #000;padding-bottom:6px}.printing #prParams.pr-on{display:block;break-before:page}.printing .pimg{display:block;width:100%}
+.printing #v3 canvas,.printing #fv canvas,.printing #sv canvas{display:none!important}.printing .two{grid-template-columns:1fr}.printing #v3,.printing #fv,.printing #sv{height:auto!important;background:none!important}
+.card{break-inside:auto}tr{break-inside:avoid}h2{break-after:avoid}}
 code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:.82rem}details{margin:6px 0}summary{cursor:pointer;font-weight:600}
 </style></head><body><main>
-<h1>🏢 Analisis Energi & Biaya Listrik dari Model IFC</h1>
-<div class="mut">Unggah IFC → parameter dibaca otomatis → lengkapi yang kosong → analisis, 3D, dan lintasan matahari.</div>
+<h1 class="np">🏢 Analisis Pra-Desain Bangunan dari Model IFC</h1>
+<div class="mut np">Unggah IFC → parameter dibaca otomatis → lengkapi yang kosong → analisis, 3D, dan lintasan matahari.</div>
 
-<div class="card"><h2>1. Unggah file IFC</h2>
+<div class="card np"><h2>1. Unggah file IFC</h2>
 <div id="drop"><input type="file" id="f" accept=".ifc" style="display:none">
 <button onclick="f.click()">Pilih file .ifc</button> <button class="s" onclick="sample()">Isi data contoh</button>
 <div class="mut" id="st" style="margin-top:8px">File diproses di browser Anda, tidak diunggah ke server.</div></div>
 <div id="det" class="mut" style="margin-top:8px"></div></div>
 
-<div class="card"><h2>2. Parameter <span class="mut">(<span class="b i">IFC</span> terbaca dari file, <span class="b">Manual</span> perlu dicek/diisi)</span></h2>
+<div class="card np"><h2>2. Parameter <span class="mut">(<span class="b i">IFC</span> terbaca dari file, <span class="b">Manual</span> perlu dicek/diisi)</span></h2>
 <div class="grid" id="form"></div>
 <details open><summary>Parameter struktur & gempa</summary><div class="grid" id="form5" style="margin-top:8px"></div></details>
 <details open><summary>Parameter analisis arsitek (lahan, ventilasi, aksesibilitas, biaya)</summary><div class="grid" id="form4" style="margin-top:8px"></div></details>
@@ -40,10 +51,17 @@ code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:.82rem}det
 <p><button onclick="run()">Analisis sekarang</button></p></div>
 
 <div id="res" style="display:none">
-<div class="card"><h2>3. Hasil & kesimpulan</h2><div class="kpi" id="kpi"></div><p id="sum"></p>
+<div id="prHead"></div>
+<div id="tabs" class="np" role="tablist"><button class="act" data-k="energi" role="tab" aria-selected="true" onclick="showTab('energi')">⚡ Energi</button><button data-k="api" role="tab" aria-selected="false" onclick="showTab('api')">🔥 Kebakaran</button><button data-k="arsitek" role="tab" aria-selected="false" onclick="showTab('arsitek')">📐 Arsitek</button><button data-k="struktur" role="tab" aria-selected="false" onclick="showTab('struktur')">🏗 Struktur</button></div>
+<div class="card np"><h2>Cetak & ekspor</h2><div class="pbar"><span class="mut">Pilih yang dicetak:</span>
+<label><input type="checkbox" class="prc" value="energi" checked> Energi</label><label><input type="checkbox" class="prc" value="api" checked> Kebakaran</label><label><input type="checkbox" class="prc" value="arsitek" checked> Arsitek</label><label><input type="checkbox" class="prc" value="struktur" checked> Struktur</label><label><input type="checkbox" class="prc" value="param" checked> Parameter input</label></div>
+<p style="margin:10px 0 0"><button onclick="printSel()">Cetak yang dipilih</button> <button class="s" onclick="printSel([curTab])">Cetak tab ini saja</button> <button class="s" onclick="cp2()">Salin tabel untuk Excel</button> <span class="mut" id="prm"></span></p><textarea id="tsv" style="display:none;width:100%;height:140px;margin-top:8px"></textarea>
+<div class="mut" style="margin-top:6px">Tiap analisis dicetak mulai di halaman baru. Pada dialog cetak, pilih "Simpan sebagai PDF" untuk berkas PDF; aktifkan "Grafik latar belakang" agar warna pada skala ikut tercetak.</div></div>
+<div class="pane on" data-k="energi">
+<div class="card"><h2>Energi — hasil & kesimpulan</h2><div class="kpi" id="kpi"></div><p id="sum"></p>
 <div class="two"><div><b>Konsumsi bulanan (kWh)</b><div id="mon" class="sc"></div></div><div><b>Porsi beban pendinginan tahunan</b><div id="comp"></div></div></div></div>
 
-<div class="card"><h2>4. Tampilan 3D & lintasan matahari</h2>
+<div class="card"><h2>Tampilan 3D & lintasan matahari</h2>
 <div class="two"><div><label>Skala warna analisis<select id="cm" onchange="colorize()"><option value="nat">Kategori elemen (asli IFC)</option><option value="sun">Radiasi matahari tahunan</option><option value="fr">Ketahanan api vs syarat</option><option value="ev">Jarak evakuasi ke tangga</option></select></label><div id="lg" style="margin:6px 0"></div><div id="v3"></div><div class="mut">Seret untuk memutar, scroll/cubit untuk zoom. Dengan file IFC, geometri dirender dari model (ekstrusi, brep, face set); tanpa IFC dipakai massa sederhana.</div></div>
 <div><canvas id="sp" width="340" height="340"></canvas>
 <label>Bulan <input type="range" id="mo" min="0" max="11" value="5"></label>
@@ -51,19 +69,25 @@ code{background:var(--bg);padding:1px 5px;border-radius:5px;font-size:.82rem}det
 <div id="sl" class="mut"></div>
 <span class="mut">Kurva: <b style="color:#ef4444">21 Jun</b> · <b style="color:#16a34a">21 Mar/23 Sep</b> · <b style="color:#3b82f6">21 Des</b></span></div></div></div>
 
-<div class="card"><h2>5. Skenario hemat energi</h2><div class="sc" id="scen"></div><div class="mut">Tiap skenario dihitung terpisah dari kondisi saat ini (penghematan tidak dijumlahkan, kecuali baris paket). Tanpa biaya investasi.</div></div>
-<div class="card"><h2>6. Dasar perhitungan & asumsi</h2><div id="basis"></div></div>
-<div class="card"><h2>7. Analisis kebakaran & evakuasi</h2>
+<div class="card"><h2>Skenario hemat energi</h2><div class="sc" id="scen"></div><div class="mut">Tiap skenario dihitung terpisah dari kondisi saat ini (penghematan tidak dijumlahkan, kecuali baris paket). Tanpa biaya investasi.</div></div>
+<div class="card"><h2>Dasar perhitungan & asumsi energi</h2><div id="basis"></div></div>
+</div>
+<div class="pane" data-k="api">
+<div class="card"><h2>Analisis kebakaran & evakuasi</h2>
 <div class="grid"><label>Lantai ditampilkan<select id="fl" onchange="fire();fv3()"></select></label><label>Skala warna<select id="fcm" onchange="fv3()"><option value="fr">Ketahanan api vs syarat</option><option value="ev">Jarak evakuasi ke tangga</option><option value="nat">Kategori elemen</option></select></label><label><input type="checkbox" id="fcl" checked onchange="fv3()" style="width:auto"> Potong sampai lantai terpilih</label><label><input type="checkbox" id="fsp" checked onchange="fv3()" style="width:auto"> Titik sprinkler</label></div>
 <div id="flg" style="margin:6px 0"></div><div id="fv" style="width:100%;height:340px;border-radius:10px;overflow:hidden;background:#d5dde5"></div>
 <div class="mut">Seret untuk memutar, scroll/cubit untuk zoom. Titik biru = grid sprinkler usulan pada bounding box lantai terpilih (belum dipotong mengikuti bentuk denah).</div><div id="fireRes"></div></div>
-<div class="card"><h2>8. Analisis arsitek</h2><div id="archRes"></div></div>
-<div class="card"><h2>9. Analisis struktur (pra-desain)</h2>
+</div>
+<div class="pane" data-k="arsitek">
+<div class="card"><h2>Analisis arsitek</h2><div id="archRes"></div></div>
+</div>
+<div class="pane" data-k="struktur">
+<div class="card"><h2>Analisis struktur & gempa (pra-desain)</h2>
 <div class="grid"><label>Skala warna pembebanan<select id="scm" onchange="sv3()"><option value="fi">Gaya gempa per lantai (Fi)</option><option value="pu">Beban aksial kolom (Pu)</option><option value="wd">Tekanan angin pada fasad</option></select></label><label>Arah angin datang (untuk mode angin)<select id="swd" onchange="sv3()"><option value="0">Utara</option><option value="45">Timur Laut</option><option value="90">Timur</option><option value="135">Tenggara</option><option value="180">Selatan</option><option value="225">Barat Daya</option><option value="270">Barat</option><option value="315">Barat Laut</option></select></label></div>
 <div id="slg" style="margin:6px 0"></div><div id="sv" style="width:100%;height:360px;border-radius:10px;overflow:hidden;background:#d5dde5"></div>
 <div class="mut">Seret untuk memutar, scroll/cubit untuk zoom. Pada mode angin, panah menunjukkan arah datang angin dan warna menunjukkan tekanan (merah) atau isapan (biru).</div><div id="strRes"></div></div>
-<div class="card np"><h2>10. Ekspor</h2><button onclick="window.print()">Cetak / simpan PDF</button> <button class="s" onclick="cp2()">Salin tabel untuk Excel</button> <span class="mut" id="cpm"></span><textarea id="tsv" style="display:none;width:100%;height:140px;margin-top:8px"></textarea></div>
-<style>@media print{.np,#v3,main>div:nth-of-type(-n+3){display:none}body{background:#fff;color:#000}}</style></div>
+</div>
+<div id="prParams"></div></div>
 <div class="mut">Estimasi pra-desain (±30%), bukan pengganti simulasi energi tersertifikasi. Tarif listrik cek ulang di PLN.</div>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -88,7 +112,7 @@ function sync(){[...FS,...FS2,...FS3,...FS4,...FS5].forEach(([k])=>{$('i_'+k).va
 function ed(k){const e=$('i_'+k);P[k]=e.tagName=='SELECT'?e.value:parseFloat(e.value);if(S[k]=='i')S[k]='e';
 if(k=='city'&&CITY[P.city].lat!=null){const c=CITY[P.city];['lat','lon','tz','tavg','tamp','rhout','kt'].forEach(q=>{P[q]=c[q];S[q]='m'})}
 if(k=='gol'){P.tariff=TG[P.gol].v;S.tariff='m'}sync()}
-function sample(){window.FD=null;window.GEO=null;$('st').textContent='Data contoh dimuat (kantor 5 lantai, Jakarta). Silakan ubah.';run()}
+function sample(){window.IFCNAME='Data contoh';window.FD=null;window.GEO=null;$('st').textContent='Data contoh dimuat (kantor 5 lantai, Jakarta). Silakan ubah.';run()}
 // ---- IFC parser
 function sp(s){const a=[];let d=0,c='',q=false;for(const ch of s){if(ch=="'")q=!q;if(!q){if(ch=='(')d++;if(ch==')')d--;if(ch==','&&d==0){a.push(c);c='';continue}}c+=ch}a.push(c);return a.map(x=>x.trim())}
 const nums=s=>(s.match(/-?\d+\.?\d*(?:[eE][-+]?\d+)?/g)||[]).map(Number),str=s=>(s||'').replace(/^'|'$/g,'');
@@ -171,7 +195,7 @@ if(!nt)return{n:0,cn,unk};const pos=new Float32Array(nv*3);let off=0;ch.forEach(
 const bb=[1e12,1e12,1e12,-1e12,-1e12,-1e12];for(let i=0;i<pos.length;i+=3)for(let k=0;k<3;k++){bb[k]=Math.min(bb[k],pos[i+k]);bb[k+3]=Math.max(bb[k+3],pos[i+k])}
 if(!bb.every(isFinite))return{n:0};return{n:nt,pos,el:els,bb,cn,unk}}catch(e){return{n:0,err:e.message}}})();
 return{R,FD,GEO,info:`Terbaca: ${g('IFCWALL').length+g('IFCWALLSTANDARDCASE').length} dinding, ${win.length} jendela, ${g('IFCSLAB').length} pelat, ${g('IFCSPACE').length} ruang, ${st.length} lantai, ${g('IFCCHILLER').length+g('IFCUNITARYEQUIPMENT').length} unit HVAC. Material: ${[...new Set(mats)].slice(0,8).join(', ')||'-'}`}}
-$('f').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;$('st').textContent='Membaca '+fl.name+'…';try{const r=parseIFC(await fl.text());Object.entries(r.R).forEach(([k,v])=>{if(k in P){P[k]=v;S[k]='i'}});window.FD=r.FD;window.GEO=r.GEO;if(r.FD.spr.length){P.spr='yes';S.spr='i'}sync();const miss=FS.filter(([k])=>S[k]!='i').map(x=>x[1].split(' (')[0]);$('st').textContent='Selesai: '+fl.name+(r.GEO.n?` · geometri 3D terbaca (${fmt(r.GEO.n)} segitiga)${diag(r.GEO)}`:' · geometri 3D tidak terbaca'+diag(r.GEO)+(r.GEO.err?' ('+r.GEO.err+')':'')+', dipakai massa sederhana');$('det').innerHTML=r.info+'<br><b>Perlu diisi/dicek manual:</b> '+miss.join(', ')}catch(x){$('st').textContent='Gagal membaca IFC: '+x.message}}
+$('f').onchange=async e=>{const fl=e.target.files[0];if(!fl)return;window.IFCNAME=fl.name;$('st').textContent='Membaca '+fl.name+'…';try{const r=parseIFC(await fl.text());Object.entries(r.R).forEach(([k,v])=>{if(k in P){P[k]=v;S[k]='i'}});window.FD=r.FD;window.GEO=r.GEO;if(r.FD.spr.length){P.spr='yes';S.spr='i'}sync();const miss=FS.filter(([k])=>S[k]!='i').map(x=>x[1].split(' (')[0]);$('st').textContent='Selesai: '+fl.name+(r.GEO.n?` · geometri 3D terbaca (${fmt(r.GEO.n)} segitiga)${diag(r.GEO)}`:' · geometri 3D tidak terbaca'+diag(r.GEO)+(r.GEO.err?' ('+r.GEO.err+')':'')+', dipakai massa sederhana');$('det').innerHTML=r.info+'<br><b>Perlu diisi/dicek manual:</b> '+miss.join(', ')}catch(x){$('st').textContent='Gagal membaca IFC: '+x.message}}
 // ---- solar
 const CD=[0,31,59,90,120,151,181,212,243,273,304,334],DM=[31,28.25,31,30,31,30,31,31,30,31,30,31];
 function sun(lat,lon,tz,n,h){const dc=23.45*Math.sin(rad*360/365*(284+n)),B=rad*360/364*(n-81),eot=9.87*Math.sin(2*B)-7.53*Math.cos(B)-1.5*Math.sin(B),ts=h+(4*(lon-15*tz)+eot)/60,H=rad*15*(ts-12),p=lat*rad,d=dc*rad;
@@ -397,7 +421,7 @@ c.lineWidth=1;if(s.alt>0){const[x,y]=xy(s.alt,s.az);c.fillStyle='#f59e0b';c.begi
 if(sunL){const v=new THREE.Vector3(Math.cos(s.alt*rad)*Math.sin(s.az*rad),Math.sin(s.alt*rad),-Math.cos(s.alt*rad)*Math.cos(s.az*rad));sunM.position.copy(v).multiplyScalar(90);sunL.position.copy(v).multiplyScalar(60);sunL.intensity=s.alt>0?1.1:0;sunM.visible=s.alt>0;rend()}}
 $('mo').oninput=$('hr').oninput=upSun;
 function rend(){if(ren){cam.position.set(cs.tg.x+cs.d*Math.cos(cs.p)*Math.sin(cs.t),cs.tg.y+cs.d*Math.sin(cs.p),cs.tg.z+cs.d*Math.cos(cs.p)*Math.cos(cs.t));cam.lookAt(cs.tg);ren.render(sc,cam)}}
-function scene(p){const el=$('v3');if(ren){ren.dispose();ren.forceContextLoss()}el.innerHTML='';const w=el.clientWidth,h=380;sc=new THREE.Scene();cam=new THREE.PerspectiveCamera(45,w/h,1,2000);ren=new THREE.WebGLRenderer({antialias:true});ren.setSize(w,h);ren.shadowMap.enabled=true;el.appendChild(ren.domElement);
+function scene(p){const el=$('v3');if(ren){ren.dispose();ren.forceContextLoss()}el.innerHTML='';const w=el.clientWidth||600,h=380;sc=new THREE.Scene();cam=new THREE.PerspectiveCamera(45,w/h,1,2000);ren=new THREE.WebGLRenderer({antialias:true});ren.setSize(w,h);ren.shadowMap.enabled=true;el.appendChild(ren.domElement);
 sc.add(new THREE.HemisphereLight(0xffffff,0x667788,.55));sunL=new THREE.DirectionalLight(0xffffff,1);sunL.castShadow=true;const sh=sunL.shadow.camera;sh.left=sh.bottom=-120;sh.right=sh.top=120;sh.far=400;sunL.shadow.mapSize.set(1024,1024);sc.add(sunL);
 sunM=new THREE.Mesh(new THREE.SphereGeometry(4),new THREE.MeshBasicMaterial({color:0xfbbf24}));sc.add(sunM);
 const gr=new THREE.Mesh(new THREE.CircleGeometry(150,48),new THREE.MeshStandardMaterial({color:0x9bbf8a}));gr.rotation.x=-Math.PI/2;gr.receiveShadow=true;sc.add(gr);
@@ -408,5 +432,17 @@ for(let f=0;f<p.floors;f++){const y=f*p.fh+p.fh/2;[[0,p.W/2+.05,p.L,0],[0,-p.W/2
 const ar=new THREE.Mesh(new THREE.ConeGeometry(2.5,10,12),new THREE.MeshBasicMaterial({color:0xdc2626}));ar.position.set(0,1,-Math.max(p.L,p.W)*.9-8);ar.rotation.x=-Math.PI/2;sc.add(ar);
 const Z=window.GEO&&GEO.n?GEO.sz:[p.L,p.W,H];cs.d=Math.max(...Z)*2.3;cs.tg.set(0,Z[2]/3,0);let dr=0,lx,ly;const c=ren.domElement;c.onpointerdown=e=>{dr=1;lx=e.clientX;ly=e.clientY};window.onpointerup=()=>dr=0;c.onpointermove=e=>{if(!dr)return;cs.t-=(e.clientX-lx)*.008;cs.p=Math.max(.05,Math.min(1.5,cs.p+(e.clientY-ly)*.006));lx=e.clientX;ly=e.clientY;rend()};c.onwheel=e=>{e.preventDefault();cs.d*=e.deltaY>0?1.08:.92;rend()};
 let pd=0;c.ontouchmove=e=>{if(e.touches.length==2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pd)cs.d*=pd/d;pd=d;rend()}};c.ontouchend=()=>pd=0;rend()}
+let curTab='energi';
+function fitViewers(){const f=(r,c,id,hh,draw)=>{const e=$(id),w=e&&e.clientWidth;if(r&&c&&w>0){r.setSize(w,hh);c.aspect=w/hh;c.updateProjectionMatrix();draw()}};f(ren,cam,'v3',380,rend);if(FV)f(FV.r,FV.cam,'fv',340,fvr);if(SV)f(SV.r,SV.cam,'sv',360,svr)}
+function showTab(k){curTab=k;document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('on',p.dataset.k==k));document.querySelectorAll('#tabs button').forEach(b=>{const a=b.dataset.k==k;b.classList.toggle('act',a);b.setAttribute('aria-selected',a)});requestAnimationFrame(fitViewers)}
+window.addEventListener('resize',fitViewers);
+function prParams(){const rows=[];[['Lokasi & bangunan',FS],['Iklim',FS2],['Kebakaran',FS3],['Arsitek & biaya',FS4],['Struktur & gempa',FS5]].forEach(([g,fs])=>{rows.push(`<tr><th colspan="3">${g}</th></tr>`);fs.forEach(([k,l,t,d,o])=>{const v=t=='s'?((o&&o[P[k]])??P[k]):(typeof P[k]=='number'?+P[k].toFixed(3):P[k]);rows.push(`<tr><td>${l}</td><td>${v}</td><td>${S[k]=='i'?'IFC':S[k]=='e'?'Diubah':'Manual'}</td></tr>`)})});$('prParams').innerHTML='<h2>Parameter input</h2><table><tr><th>Parameter</th><th>Nilai</th><th>Sumber</th></tr>'+rows.join('')+'</table>'}
+function snapViewers(){document.querySelectorAll('.pimg').forEach(x=>x.remove());const add=(r,host,draw)=>{try{if(!r)return;draw();const im=new Image();im.className='pimg';im.alt='Tampilan 3D';im.src=r.domElement.toDataURL('image/png');$(host).appendChild(im)}catch(e){}};add(ren,'v3',rend);add(FV&&FV.r,'fv',fvr);add(SV&&SV.r,'sv',svr)}
+function printSel(keys){if(!window.PP)return;const ks=keys||[...document.querySelectorAll('.prc:checked')].map(x=>x.value);if(!ks.length){$('prm').textContent='Pilih minimal satu analisis.';return}$('prm').textContent='';
+const NM={energi:'Energi',api:'Kebakaran',arsitek:'Arsitek',struktur:'Struktur',param:'Parameter input'};
+document.querySelectorAll('.pane').forEach(p=>p.classList.toggle('pr-on',ks.includes(p.dataset.k)));$('prParams').classList.toggle('pr-on',ks.includes('param'));if(ks.includes('param'))prParams();const on=[...document.querySelectorAll('.pane.pr-on,#prParams.pr-on')];on.forEach(x=>x.classList.remove('pr-first'));if(on[0])on[0].classList.add('pr-first');
+$('prHead').innerHTML=`<h1 style="margin:0;font-size:1.2rem">Laporan analisis pra-desain bangunan</h1><div style="font-size:.85rem">Berkas: ${window.IFCNAME||'-'} · ${new Date().toLocaleDateString('id-ID',{dateStyle:'long'})} · ${FN[PP.func].n}, ${PP.floors} lantai, ${fmt(PP.gfa)} m² · Isi: ${ks.map(k=>NM[k]).join(', ')}</div><div style="font-size:.75rem;color:#555">Estimasi pra-desain, bukan pengganti perhitungan konsultan berlisensi.</div>`;
+snapViewers();document.body.classList.add('printing');
+const done=()=>{document.body.classList.remove('printing');document.querySelectorAll('.pr-on').forEach(x=>x.classList.remove('pr-on','pr-first'));document.querySelectorAll('.pimg').forEach(x=>x.remove());window.removeEventListener('afterprint',done)};window.addEventListener('afterprint',done);setTimeout(()=>window.print(),60)}
 buildForm();
 </script></body></html>
